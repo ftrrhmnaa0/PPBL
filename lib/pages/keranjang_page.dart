@@ -1,89 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../models/keranjang_model.dart';
 
 class KeranjangPage extends StatelessWidget {
   const KeranjangPage({super.key});
 
+  String rupiah(int nilai) {
+    return 'Rp${nilai.toString()}';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const Text(
-          'Keranjang Belanja',
-          style: TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        Card(
-          child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.shopping_basket),
-            ),
-            title: const Text('Bayam'),
-            subtitle: const Text('Rp5.000 • Bu Siti'),
-            trailing: const Text('1 item'),
-          ),
-        ),
-
-        Card(
-          child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.shopping_basket),
-            ),
-            title: const Text('Beras'),
-            subtitle: const Text('Rp15.000 • Bu Ani'),
-            trailing: const Text('1 item'),
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        const Card(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<KeranjangModel>(
+      builder: (context, keranjang, child) {
+        if (keranjang.items.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Total Contoh',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                Icon(
+                  Icons.shopping_cart_outlined,
+                  size: 64,
                 ),
-                Text(
-                  'Rp20.000',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.teal,
-                  ),
-                ),
+                SizedBox(height: 12),
+                Text('Keranjang masih kosong'),
               ],
             ),
-          ),
-        ),
+          );
+        }
 
-        const SizedBox(height: 16),
+        return Column(
+          children: [
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: keranjang.items.length,
+                separatorBuilder: (context, index) =>
+                    const Divider(),
+                itemBuilder: (context, index) {
+                  final item = keranjang.items[index];
 
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Halaman checkout masih berupa kerangka desain.',
-                  ),
+                  return ListTile(
+                    leading: Text(
+                      item.produk.ikon,
+                      style: const TextStyle(fontSize: 28),
+                    ),
+                    title: Text(item.produk.nama),
+                    subtitle: Text(
+                      '${item.jumlah} x '
+                      '${rupiah(item.produk.harga)}',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            keranjang.kurangi(item.produk);
+                          },
+                          icon: const Icon(
+                            Icons.remove_circle_outline,
+                          ),
+                        ),
+                        Text('${item.jumlah}'),
+                        IconButton(
+                          onPressed: () {
+                            keranjang.tambah(item.produk);
+                          },
+                          icon: const Icon(
+                            Icons.add_circle_outline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Total: ${rupiah(keranjang.totalHarga)}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: keranjang.kosongkan,
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text('Kosongkan Keranjang'),
+                    ),
+                  ],
                 ),
-              );
-            },
-            child: const Text('Lanjut ke Checkout'),
-          ),
-        ),
-      ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -7,44 +7,22 @@ class PesananPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: [
-        const Text(
-          'Pesanan Saya',
+      children: const [
+        Text(
+          'Riwayat Pesanan',
           style: TextStyle(
-            fontSize: 21,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
-
-        const SizedBox(height: 16),
-
+        SizedBox(height: 16),
         Card(
           child: ListTile(
-            leading: const Icon(
-              Icons.receipt_long,
-              color: Colors.teal,
-              size: 35,
+            leading: Icon(Icons.receipt_long),
+            title: Text('Belum ada pesanan'),
+            subtitle: Text(
+              'Pesanan yang dilakukan akan ditampilkan di sini.',
             ),
-            title: const Text('Pesanan #PR001'),
-            subtitle: const Text(
-              'Bayam dan Beras\nStatus: Menunggu Konfirmasi',
-            ),
-            isThreeLine: true,
-          ),
-        ),
-
-        Card(
-          child: ListTile(
-            leading: const Icon(
-              Icons.receipt_long,
-              color: Colors.teal,
-              size: 35,
-            ),
-            title: const Text('Pesanan #PR002'),
-            subtitle: const Text(
-              'Daging Ayam\nStatus: Pesanan Diproses',
-            ),
-            isThreeLine: true,
           ),
         ),
       ],
