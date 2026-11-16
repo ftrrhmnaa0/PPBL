@@ -1,89 +1,119 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../cubit/cart_cubit.dart';
+import '../models/produk.dart';
 
 class KeranjangPage extends StatelessWidget {
   const KeranjangPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const Text(
-          'Keranjang Belanja',
-          style: TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: BlocBuilder<CartCubit, List<ItemKeranjang>>(
+          builder: (context, daftarItem) {
+            final totalItem = daftarItem.fold(
+              0,
+              (total, item) => total + item.jumlah,
+            );
+
+            return Text('Keranjang ($totalItem)');
+          },
         ),
+      ),
+      body: BlocBuilder<CartCubit, List<ItemKeranjang>>(
+        builder: (context, daftarItem) {
+          final cubit = context.read<CartCubit>();
 
-        const SizedBox(height: 16),
-
-        Card(
-          child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.shopping_basket),
-            ),
-            title: const Text('Bayam'),
-            subtitle: const Text('Rp5.000 • Bu Siti'),
-            trailing: const Text('1 item'),
-          ),
-        ),
-
-        Card(
-          child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.shopping_basket),
-            ),
-            title: const Text('Beras'),
-            subtitle: const Text('Rp15.000 • Bu Ani'),
-            trailing: const Text('1 item'),
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        const Card(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Total Contoh',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+          if (daftarItem.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 72,
                   ),
-                ),
-                Text(
-                  'Rp20.000',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.teal,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+                  SizedBox(height: 12),
+                  Text('Keranjang masih kosong'),
+                ],
+              ),
+            );
+          }
 
-        const SizedBox(height: 16),
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: daftarItem.length,
+                  itemBuilder: (context, index) {
+                    final item = daftarItem[index];
 
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Halaman checkout masih berupa kerangka desain.',
-                  ),
+                    return ListTile(
+                      leading: CircleAvatar(
+                        child: Text(item.produk.ikon),
+                      ),
+                      title: Text(item.produk.nama),
+                      subtitle: Text(
+                        '${item.jumlah} x Rp${item.produk.harga}',
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              cubit.kurangi(item.produk);
+                            },
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                            ),
+                          ),
+                          Text('${item.jumlah}'),
+                          IconButton(
+                            onPressed: () {
+                              cubit.tambah(item.produk);
+                            },
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-            child: const Text('Lanjut ke Checkout'),
-          ),
-        ),
-      ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      'Total Harga: Rp${cubit.totalHarga}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          cubit.kosongkan();
+                        },
+                        child: const Text(
+                          'Kosongkan Keranjang',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
