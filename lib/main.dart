@@ -1,9 +1,17 @@
-import 'package:flutter/material.dart';
 
-import 'navigation/app_routes.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'cubit/cart_cubit.dart';
+import 'navigation/kerangka_navigasi.dart';
 
 void main() {
-  runApp(const PeukanRumohApp());
+  runApp(
+    BlocProvider(
+      create: (context) => CartCubit(),
+      child: const PeukanRumohApp(),
+    ),
+  );
 }
 
 class PeukanRumohApp extends StatelessWidget {
@@ -12,24 +20,18 @@ class PeukanRumohApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Peukan Rumoh',
 
+      debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
-        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.teal,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF5F7F8),
+        useMaterial3: true,
       ),
 
-      initialRoute: AppRoutes.beranda,
-
-      routes: AppRoutes.daftarRoute(),
-
-      onGenerateRoute: AppRoutes.bentukRoute,
-
-      onUnknownRoute: AppRoutes.routeTidakDikenal,
+      home: const KerangkaNavigasi(),
     );
   }
 }

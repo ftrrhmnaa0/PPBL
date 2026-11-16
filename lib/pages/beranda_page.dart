@@ -1,171 +1,163 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../cubit/cart_cubit.dart';
+import '../models/produk.dart';
 
 class BerandaPage extends StatelessWidget {
   const BerandaPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            color: Colors.teal,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.storefront,
-                size: 55,
-                color: Colors.white,
-              ),
-
-              SizedBox(height: 15),
-
-              Text(
-                'Peukan Rumoh',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              Text(
-                'Belanja kebutuhan pasar jadi lebih mudah.',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        const Text(
-          'Selamat Datang!',
-          style: TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        const Text(
-          'Peukan Rumoh menghubungkan pembeli dengan '
-          'pedagang pasar tradisional secara online. '
-          'Temukan berbagai kebutuhan pangan dan dapur '
-          'melalui satu aplikasi.',
-          style: TextStyle(
-            fontSize: 15,
-            height: 1.5,
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        const Text(
-          'Kategori Produk',
-          style: TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        const Row(
-          children: [
-            Expanded(
-              child: KategoriCard(
-                ikon: Icons.eco,
-                nama: 'Sayur & Buah',
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: KategoriCard(
-                ikon: Icons.set_meal,
-                nama: 'Daging & Ikan',
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: KategoriCard(
-                ikon: Icons.rice_bowl,
-                nama: 'Sembako',
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 24),
-
-        const Text(
-          'Belanja dari Pasar Tradisional',
-          style: TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        const Text(
-          'Dapatkan informasi produk dan harga dari '
-          'pedagang pasar dengan lebih praktis.',
-          style: TextStyle(
-            height: 1.5,
-          ),
-        ),
-      ],
-    );
+  String rupiah(int nilai) {
+    return 'Rp${nilai.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (match) => '${match[1]}.',
+    )}';
   }
-}
-
-class KategoriCard extends StatelessWidget {
-  final IconData ikon;
-  final String nama;
-
-  const KategoriCard({
-    super.key,
-    required this.ikon,
-    required this.nama,
-  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 16,
-          horizontal: 5,
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Peukan Rumoh'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              ikon,
-              color: Colors.teal,
-              size: 30,
+            const Text(
+              'Selamat Datang di Peukan Rumoh!',
+              style: TextStyle(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const SizedBox(height: 8),
 
-            Text(
-              nama,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
+            const Text(
+              'Belanja kebutuhan sehari-hari dari pasar '
+              'tradisional dengan lebih mudah.',
+            ),
+
+            const SizedBox(height: 24),
+
+            const Text(
+              'Ringkasan Keranjang',
+              style: TextStyle(
+                fontSize: 19,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            BlocBuilder<CartCubit, List<ItemKeranjang>>(
+              builder: (context, items) {
+                final cartCubit = context.read<CartCubit>();
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.shopping_cart,
+                              size: 35,
+                              color: Colors.teal,
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            const Text(
+                              'Produk dalam Keranjang',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        Text(
+                          '${cartCubit.totalItem} Item',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Text(
+                          'Total Belanja: ${rupiah(cartCubit.totalHarga)}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.teal,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        if (items.isEmpty)
+                          const Text(
+                            'Belum ada produk yang ditambahkan.',
+                          )
+                        else
+                          const Text(
+                            'Produk siap diperiksa di keranjang.',
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 24),
+
+            const Text(
+              'Keunggulan Peukan Rumoh',
+              style: TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            const Card(
+              child: ListTile(
+                leading: Icon(
+                  Icons.store,
+                  color: Colors.teal,
+                ),
+                title: Text('Mendukung Pasar Tradisional'),
+                subtitle: Text(
+                  'Membantu pedagang memperluas jangkauan penjualan.',
+                ),
+              ),
+            ),
+
+            const Card(
+              child: ListTile(
+                leading: Icon(
+                  Icons.shopping_bag,
+                  color: Colors.teal,
+                ),
+                title: Text('Belanja Lebih Praktis'),
+                subtitle: Text(
+                  'Memudahkan pembeli menemukan kebutuhan sehari-hari.',
+                ),
               ),
             ),
           ],
